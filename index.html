@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUR 555 Pharmacology Exam Prep</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 24px 0 16px;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 20px;
+        }
+        header h1 { font-size: 1.4rem; color: #60a5fa; margin-bottom: 4px; }
+        header p { font-size: 0.85rem; color: #94a3b8; }
+
+        /* Topic Selection */
+        #topic-select {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        .topic-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topic-card:hover, .topic-card:active {
+            background: #334155;
+            border-color: #60a5fa;
+        }
+        .topic-card .topic-name { font-size: 0.95rem; font-weight: 600; flex: 1; }
+        .topic-card .topic-count {
+            background: #60a5fa22;
+            color: #60a5fa;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 12px;
+        }
+
+        /* Quiz Mode Selector */
+        #mode-select {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+        #mode-select h2 { font-size: 1.1rem; margin-bottom: 16px; color: #60a5fa; }
+        .mode-options { display: flex; flex-direction: column; gap: 10px; }
+        .mode-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 16px;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mode-btn:hover { background: #334155; border-color: #60a5fa; }
+        .mode-btn small { display: block; color: #94a3b8; margin-top: 4px; font-size: 0.8rem; }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: none;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+        .filter-bar.active { display: flex; }
+        .filter-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #475569;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn.active {
+            background: #60a5fa;
+            color: #0f172a;
+            border-color: #60a5fa;
+            font-weight: 600;
+        }
+
+        /* Progress Bar */
+        .progress-wrap {
+            display: none;
+            margin-bottom: 16px;
+        }
+        .progress-wrap.active { display: block; }
+        .progress-bar-bg {
+            height: 6px;
+            background: #334155;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: #60a5fa;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 6px;
+        }
+        .score-text { color: #34d399; }
+
+        /* Question Card */
+        #question-area { display: none; }
+        .question-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .question-meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-easy { background: #22c55e22; color: #4ade80; }
+        .badge-moderate { background: #f59e0b22; color: #fbbf24; }
+        .badge-hard { background: #ef444422; color: #f87171; }
+        .badge-case { background: #8b5cf622; color: #a78bfa; }
+        .badge-knowledge { background: #06b6d422; color: #22d3ee; }
+
+        .question-stem {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            white-space: pre-wrap;
+        }
+
+        /* Answer Choices */
+        .choices { display: flex; flex-direction: column; gap: 10px; }
+        .choice-btn {
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            line-height: 1.4;
+        }
+        .choice-btn:hover:not(.disabled) {
+            border-color: #60a5fa;
+            background: #1e293b;
+        }
+        .choice-btn.selected {
+            border-color: #60a5fa;
+            background: #60a5fa22;
+        }
+        .choice-btn.correct {
+            border-color: #22c55e;
+            background: #22c55e22;
+        }
+        .choice-btn.incorrect {
+            border-color: #ef4444;
+            background: #ef444422;
+        }
+        .choice-btn.disabled { cursor: default; opacity: 0.7; }
+        .choice-btn.disabled.correct { opacity: 1; }
+
+        /* Rationale */
+        .rationale {
+            display: none;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .rationale.visible { display: block; }
+        .rationale-label {
+            color: #60a5fa;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-secondary { background: #334155; color: #e2e8f0; }
+        .btn-secondary:hover { background: #475569; }
+        .btn:disabled { opacity: 0.5; cursor: default; }
+
+        /* Back Button */
+        .back-btn {
+            background: none;
+            border: none;
+            color: #60a5fa;
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 8px 0;
+            margin-bottom: 12px;
+            display: none;
+        }
+        .back-btn.visible { display: inline-block; }
+
+        /* Results Screen */
+        #results { display: none; text-align: center; padding: 40px 0; }
+        #results h2 { font-size: 1.5rem; color: #60a5fa; margin-bottom: 12px; }
+        .result-score {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 20px 0;
+        }
+        .result-score.good { color: #22c55e; }
+        .result-score.ok { color: #f59e0b; }
+        .result-score.poor { color: #ef4444; }
+        .result-stats { color: #94a3b8; margin-bottom: 24px; font-size: 0.9rem; }
+        .result-breakdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .stat-box {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .stat-box .stat-val { font-size: 1.5rem; font-weight: 700; }
+        .stat-box .stat-label { font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
+
+        /* Missed questions review */
+        #missed-review { display: none; }
+        #missed-review h3 { color: #f87171; margin-bottom: 16px; font-size: 1.1rem; }
+
+        /* All Topics Button */
+        .all-topics-btn {
+            display: inline-block;
+            margin-bottom: 16px;
+            background: #1e293b;
+            border: 1px solid #60a5fa;
+            border-radius: 12px;
+            padding: 12px 20px;
+            color: #60a5fa;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .all-topics-btn:hover { background: #60a5fa22; }
+
+        /* Bookmark */
+        .bookmark-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .bookmark-btn.active { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NUR 555 Pharm Exam Prep</h1>
+            <p>FNP Pharmacology Midterm Review</p>
+        </header>
+
+        <button class="back-btn" id="back-btn" onclick="goBack()">&#8592; Back</button>
+
+        <!-- Topic Selection -->
+        <div id="topic-select"></div>
+
+        <!-- Mode Selection -->
+        <div id="mode-select">
+            <h2 id="mode-title"></h2>
+            <div class="mode-options">
+                <button class="mode-btn" onclick="startQuiz('all')">
+                    All Questions<small>Sequential order</small>
+                </button>
+                <button class="mode-btn" onclick="startQuiz('random')">
+                    Random Quiz<small>Shuffled questions</small>
+                </button>
+                <button class="mode-btn" onclick="startQuiz('random20')">
+                    Quick 20<small>20 random questions</small>
+                </button>
+                <button class="mode-btn" onclick="startQuiz('random50')">
+                    Practice 50<small>50 random questions</small>
+                </button>
+                <button class="mode-btn" onclick="startQuiz('hard')">
+                    Hard Only<small>Challenge yourself</small>
+                </button>
+                <button class="mode-btn" onclick="startQuiz('missed')">
+                    Review Missed<small>Questions you got wrong</small>
+                </button>
+                <button class="mode-btn" onclick="startQuiz('bookmarked')">
+                    Bookmarked<small>Your saved questions</small>
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar" id="filter-bar">
+            <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
+            <button class="filter-btn" data-filter="Easy" onclick="setFilter('Easy')">Easy</button>
+            <button class="filter-btn" data-filter="Moderate" onclick="setFilter('Moderate')">Moderate</button>
+            <button class="filter-btn" data-filter="Hard" onclick="setFilter('Hard')">Hard</button>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-wrap" id="progress-wrap">
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progress-label">0 / 0</span>
+                <span class="score-text" id="score-label">Score: 0%</span>
+            </div>
+        </div>
+
+        <!-- Question Area -->
+        <div id="question-area">
+            <div class="question-card" id="question-card">
+                <div style="display:flex;justify-content:space-between;align-items:start;">
+                    <div class="question-meta" id="question-meta"></div>
+                    <button class="bookmark-btn" id="bookmark-btn" onclick="toggleBookmark()" title="Bookmark">&#9733;</button>
+                </div>
+                <div class="question-stem" id="question-stem"></div>
+                <div class="choices" id="choices"></div>
+                <div class="rationale" id="rationale">
+                    <div class="rationale-label">Rationale</div>
+                    <div id="rationale-text"></div>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-secondary" id="show-answer-btn" onclick="showAnswer()">Show Answer</button>
+                <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next &#8594;</button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results">
+            <h2>Quiz Complete!</h2>
+            <div class="result-score" id="result-score"></div>
+            <div class="result-stats" id="result-stats"></div>
+            <div class="result-breakdown" id="result-breakdown"></div>
+            <button class="btn btn-primary" style="max-width:300px;margin:0 auto 12px;" onclick="startQuiz('missed')">Review Missed Questions</button>
+            <br>
+            <button class="btn btn-secondary" style="max-width:300px;margin:0 auto;" onclick="goBack()">Back to Topics</button>
+        </div>
+
+        <!-- Missed Review -->
+        <div id="missed-review"></div>
+    </div>
+
+    <script>
+    const TOPICS = [
+        { file: 'questions/01_prescriptive_practice.md', name: 'Prescriptive Practice', short: 'Prescriptive' },
+        { file: 'questions/02_pharmacokinetics_pharmacodynamics.md', name: 'Pharmacokinetics & Pharmacodynamics', short: 'PK/PD' },
+        { file: 'questions/03_antimicrobials.md', name: 'Antimicrobials', short: 'Antimicrobials' },
+        { file: 'questions/04_antivirals_antifungals.md', name: 'Antivirals & Antifungals', short: 'Antivirals' },
+        { file: 'questions/05_cardiovascular.md', name: 'Cardiovascular', short: 'Cardio' },
+        { file: 'questions/06_respiratory.md', name: 'Respiratory', short: 'Respiratory' },
+        { file: 'questions/07_eent.md', name: 'EENT (Eyes, Ears, Nose, Throat)', short: 'EENT' },
+        { file: 'questions/08_skin.md', name: 'Skin / Integumentary', short: 'Skin' },
+        { file: 'questions/09_gastrointestinal.md', name: 'Gastrointestinal', short: 'GI' },
+        { file: 'questions/10_genitourinary_renal.md', name: 'Genitourinary & Renal', short: 'GU/Renal' },
+        { file: 'questions/11_hiv_antiretroviral.md', name: 'HIV & Antiretroviral', short: 'HIV/ART' },
+    ];
+
+    let allQuestions = {};
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let answered = 0;
+    let selectedTopic = null;
+    let currentView = 'topics';
+    let missedQuestions = JSON.parse(localStorage.getItem('pharmMissed') || '{}');
+    let bookmarks = JSON.parse(localStorage.getItem('pharmBookmarks') || '{}');
+
+    function parseMarkdown(text, topicKey) {
+        const questions = [];
+        const blocks = text.split(/---+/).filter(b => b.trim());
+        for (const block of blocks) {
+            const qMatch = block.match(/\*\*Question\s+(\d+)\*\*\s*\[(Easy|Moderate|Hard)\]\s*-\s*(Case Study|Knowledge)/);
+            if (!qMatch) continue;
+            const num = parseInt(qMatch[1]);
+            const difficulty = qMatch[2];
+            const type = qMatch[3];
+
+            const ansMatch = block.match(/\*\*Correct Answer:\s*([A-D])\*\*/);
+            const ratMatch = block.match(/\*\*Rationale:\*\*\s*([\s\S]*?)$/);
+            if (!ansMatch) continue;
+
+            const lines = block.split('\n');
+            let stem = '';
+            let choices = [];
+            let inStem = false;
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (trimmed.match(/^\*\*Question/)) { inStem = true; continue; }
+                if (trimmed.match(/^[A-D]\)\s/)) {
+                    choices.push(trimmed);
+                    inStem = false;
+                    continue;
+                }
+                if (trimmed.match(/^\*\*Correct Answer/)) break;
+                if (inStem || (choices.length === 0 && !trimmed.match(/^\*\*/))) {
+                    if (trimmed && !trimmed.match(/^\*\*/)) {
+                        inStem = true;
+                        stem += (stem ? '\n' : '') + trimmed;
+                    }
+                }
+            }
+
+            // Re-parse stem: everything between question header line and first choice
+            const headerEnd = block.indexOf('\n', block.indexOf(qMatch[0]) + qMatch[0].length);
+            const firstChoice = block.search(/\n\s*A\)\s/);
+            if (headerEnd > 0 && firstChoice > headerEnd) {
+                stem = block.substring(headerEnd, firstChoice).trim();
+            }
+
+            if (choices.length === 4 && stem) {
+                questions.push({
+                    id: topicKey + '_' + num,
+                    num, difficulty, type, stem,
+                    choices,
+                    answer: ansMatch[1],
+                    rationale: ratMatch ? ratMatch[1].trim() : '',
+                    topic: topicKey
+                });
+            }
+        }
+        return questions;
+    }
+
+    async function loadTopic(topicIndex) {
+        const topic = TOPICS[topicIndex];
+        if (allQuestions[topicIndex]) return allQuestions[topicIndex];
+        try {
+            const resp = await fetch(topic.file);
+            const text = await resp.text();
+            const questions = parseMarkdown(text, String(topicIndex));
+            allQuestions[topicIndex] = questions;
+            return questions;
+        } catch (e) {
+            console.error('Failed to load', topic.file, e);
+            return [];
+        }
+    }
+
+    function renderTopics() {
+        currentView = 'topics';
+        document.getElementById('topic-select').style.display = 'grid';
+        document.getElementById('mode-select').style.display = 'none';
+        document.getElementById('question-area').style.display = 'none';
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('filter-bar').classList.remove('active');
+        document.getElementById('progress-wrap').classList.remove('active');
+        document.getElementById('back-btn').classList.remove('visible');
+        document.getElementById('missed-review').style.display = 'none';
+
+        const container = document.getElementById('topic-select');
+        // Add "All Topics" card
+        let html = `<div class="topic-card" onclick="selectTopic('all')" style="border-color:#60a5fa;">
+            <span class="topic-name" style="color:#60a5fa;">All Topics Combined</span>
+            <span class="topic-count">1000 Qs</span>
+        </div>`;
+
+        TOPICS.forEach((t, i) => {
+            const count = allQuestions[i] ? allQuestions[i].length : '...';
+            html += `<div class="topic-card" onclick="selectTopic(${i})">
+                <span class="topic-name">${t.name}</span>
+                <span class="topic-count">${count} Qs</span>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    async function selectTopic(topicIndex) {
+        selectedTopic = topicIndex;
+        if (topicIndex === 'all') {
+            // Load all topics
+            const promises = TOPICS.map((_, i) => loadTopic(i));
+            await Promise.all(promises);
+            const title = 'All Topics (1000 Questions)';
+            document.getElementById('mode-title').textContent = title;
+        } else {
+            await loadTopic(topicIndex);
+            document.getElementById('mode-title').textContent = TOPICS[topicIndex].name;
+        }
+
+        currentView = 'mode';
+        document.getElementById('topic-select').style.display = 'none';
+        document.getElementById('mode-select').style.display = 'block';
+        document.getElementById('back-btn').classList.add('visible');
+    }
+
+    function getQuestionsForTopic() {
+        if (selectedTopic === 'all') {
+            let all = [];
+            TOPICS.forEach((_, i) => { if (allQuestions[i]) all = all.concat(allQuestions[i]); });
+            return all;
+        }
+        return allQuestions[selectedTopic] || [];
+    }
+
+    function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    function startQuiz(mode) {
+        let questions = getQuestionsForTopic();
+
+        if (mode === 'hard') {
+            questions = questions.filter(q => q.difficulty === 'Hard');
+        } else if (mode === 'missed') {
+            questions = questions.filter(q => missedQuestions[q.id]);
+            if (questions.length === 0) {
+                alert('No missed questions to review! Great job!');
+                return;
+            }
+        } else if (mode === 'bookmarked') {
+            questions = questions.filter(q => bookmarks[q.id]);
+            if (questions.length === 0) {
+                alert('No bookmarked questions yet. Star questions during a quiz to bookmark them.');
+                return;
+            }
+        }
+
+        if (mode === 'random' || mode === 'random20' || mode === 'random50') {
+            questions = shuffle(questions);
+        }
+        if (mode === 'random20') questions = questions.slice(0, 20);
+        if (mode === 'random50') questions = questions.slice(0, 50);
+        if (mode === 'hard') questions = shuffle(questions);
+        if (mode === 'missed') questions = shuffle(questions);
+        if (mode === 'bookmarked') questions = shuffle(questions);
+
+        currentQuestions = questions;
+        currentIndex = 0;
+        score = 0;
+        answered = 0;
+
+        currentView = 'quiz';
+        document.getElementById('mode-select').style.display = 'none';
+        document.getElementById('topic-select').style.display = 'none';
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('question-area').style.display = 'block';
+        document.getElementById('filter-bar').classList.add('active');
+        document.getElementById('progress-wrap').classList.add('active');
+        document.getElementById('back-btn').classList.add('visible');
+
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        if (currentIndex >= currentQuestions.length) {
+            showResults();
+            return;
+        }
+
+        const q = currentQuestions[currentIndex];
+        const meta = document.getElementById('question-meta');
+        const diffClass = q.difficulty.toLowerCase();
+        const typeClass = q.type === 'Case Study' ? 'case' : 'knowledge';
+
+        meta.innerHTML = `
+            <span class="badge badge-${diffClass}">${q.difficulty}</span>
+            <span class="badge badge-${typeClass}">${q.type}</span>
+            <span style="color:#64748b;font-size:0.75rem;">Q${q.num} ${selectedTopic !== 'all' ? '' : '| ' + TOPICS[parseInt(q.topic)].short}</span>
+        `;
+
+        document.getElementById('question-stem').textContent = q.stem;
+
+        const choicesDiv = document.getElementById('choices');
+        choicesDiv.innerHTML = q.choices.map((c, i) =>
+            `<button class="choice-btn" onclick="selectChoice(this, '${String.fromCharCode(65 + i)}')">${c}</button>`
+        ).join('');
+
+        document.getElementById('rationale').classList.remove('visible');
+        document.getElementById('rationale-text').textContent = q.rationale;
+        document.getElementById('show-answer-btn').disabled = false;
+        document.getElementById('show-answer-btn').style.display = '';
+        document.getElementById('next-btn').disabled = true;
+
+        // Bookmark state
+        const bBtn = document.getElementById('bookmark-btn');
+        bBtn.classList.toggle('active', !!bookmarks[q.id]);
+
+        updateProgress();
+    }
+
+    function selectChoice(btn, letter) {
+        const q = currentQuestions[currentIndex];
+        if (btn.classList.contains('disabled')) return;
+
+        // Disable all choices
+        document.querySelectorAll('.choice-btn').forEach(b => b.classList.add('disabled'));
+
+        const isCorrect = letter === q.answer;
+        btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+        // Highlight correct answer
+        if (!isCorrect) {
+            const correctIdx = q.answer.charCodeAt(0) - 65;
+            document.querySelectorAll('.choice-btn')[correctIdx].classList.add('correct');
+            missedQuestions[q.id] = true;
+        } else {
+            delete missedQuestions[q.id];
+        }
+        localStorage.setItem('pharmMissed', JSON.stringify(missedQuestions));
+
+        if (isCorrect) score++;
+        answered++;
+
+        // Show rationale
+        document.getElementById('rationale').classList.add('visible');
+        document.getElementById('show-answer-btn').disabled = true;
+        document.getElementById('next-btn').disabled = false;
+
+        updateProgress();
+    }
+
+    function showAnswer() {
+        const q = currentQuestions[currentIndex];
+        document.querySelectorAll('.choice-btn').forEach(b => b.classList.add('disabled'));
+        const correctIdx = q.answer.charCodeAt(0) - 65;
+        document.querySelectorAll('.choice-btn')[correctIdx].classList.add('correct');
+        document.getElementById('rationale').classList.add('visible');
+        document.getElementById('show-answer-btn').disabled = true;
+        document.getElementById('next-btn').disabled = false;
+        answered++;
+        updateProgress();
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        renderQuestion();
+    }
+
+    function updateProgress() {
+        const total = currentQuestions.length;
+        const pct = total > 0 ? ((currentIndex + (answered > currentIndex ? 0 : 0)) / total * 100) : 0;
+        const answeredPct = total > 0 ? (answered / total * 100) : 0;
+        document.getElementById('progress-fill').style.width = answeredPct + '%';
+        document.getElementById('progress-label').textContent = `${Math.min(answered, total)} / ${total}`;
+        const scorePct = answered > 0 ? Math.round(score / answered * 100) : 0;
+        document.getElementById('score-label').textContent = `Score: ${scorePct}%`;
+    }
+
+    function showResults() {
+        document.getElementById('question-area').style.display = 'none';
+        document.getElementById('filter-bar').classList.remove('active');
+        document.getElementById('progress-wrap').classList.remove('active');
+        document.getElementById('results').style.display = 'block';
+
+        const pct = answered > 0 ? Math.round(score / answered * 100) : 0;
+        const scoreEl = document.getElementById('result-score');
+        scoreEl.textContent = pct + '%';
+        scoreEl.className = 'result-score ' + (pct >= 80 ? 'good' : pct >= 60 ? 'ok' : 'poor');
+
+        document.getElementById('result-stats').textContent = `${score} correct out of ${answered} questions`;
+
+        const missed = answered - score;
+        document.getElementById('result-breakdown').innerHTML = `
+            <div class="stat-box"><div class="stat-val" style="color:#22c55e;">${score}</div><div class="stat-label">Correct</div></div>
+            <div class="stat-box"><div class="stat-val" style="color:#ef4444;">${missed}</div><div class="stat-label">Missed</div></div>
+            <div class="stat-box"><div class="stat-val" style="color:#60a5fa;">${answered}</div><div class="stat-label">Total</div></div>
+        `;
+    }
+
+    function setFilter(filter) {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.filter === filter);
+        });
+        // Re-filter current questions is complex mid-quiz; just update visual for now
+    }
+
+    function toggleBookmark() {
+        const q = currentQuestions[currentIndex];
+        if (bookmarks[q.id]) {
+            delete bookmarks[q.id];
+        } else {
+            bookmarks[q.id] = true;
+        }
+        localStorage.setItem('pharmBookmarks', JSON.stringify(bookmarks));
+        document.getElementById('bookmark-btn').classList.toggle('active', !!bookmarks[q.id]);
+    }
+
+    function goBack() {
+        if (currentView === 'quiz') {
+            if (answered > 0 && currentIndex < currentQuestions.length) {
+                if (!confirm('Leave quiz? Your progress will be lost.')) return;
+            }
+            document.getElementById('question-area').style.display = 'none';
+            document.getElementById('filter-bar').classList.remove('active');
+            document.getElementById('progress-wrap').classList.remove('active');
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('mode-select').style.display = 'block';
+            currentView = 'mode';
+        } else if (currentView === 'mode') {
+            renderTopics();
+        } else if (currentView === 'results') {
+            renderTopics();
+        }
+    }
+
+    // Preload all topics for counts on main screen
+    async function init() {
+        renderTopics();
+        for (let i = 0; i < TOPICS.length; i++) {
+            await loadTopic(i);
+        }
+        renderTopics(); // Re-render with actual counts
+    }
+
+    init();
+    </script>
+</body>
+</html>
